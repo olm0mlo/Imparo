@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Imparo — Laboratorio Didattico Interattivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #faf9f6;
+    --bg2: #f2f0eb;
+    --text: #1a1917;
+    --text2: #6b6860;
+    --text3: #a8a69f;
+    --border: rgba(0,0,0,0.10);
+    --border2: rgba(0,0,0,0.18);
+    --purple: #534AB7;
+    --purple-light: #EEEDFE;
+    --purple-mid: #7F77DD;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141412;
+      --bg2: #1e1d1a;
+      --text: #f0ede8;
+      --text2: #9e9b94;
+      --text3: #5c5a55;
+      --border: rgba(255,255,255,0.08);
+      --border2: rgba(255,255,255,0.15);
+      --purple-light: #26215C;
+      --purple-mid: #AFA9EC;
+    }
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 3rem 2.5rem 2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .site-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 0.4rem;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text);
+  }
+
+  h1 em {
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .hero-sub {
+    font-size: 15px;
+    color: var(--text2);
+    font-weight: 300;
+    margin-top: 0.6rem;
+    max-width: 480px;
+    line-height: 1.6;
+  }
+
+  .header-count {
+    font-size: 13px;
+    color: var(--text3);
+    white-space: nowrap;
+  }
+
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    padding: 1.25rem 2.5rem;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .filter-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-btn:hover { border-color: var(--text2); color: var(--text); }
+  .filter-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1px;
+    background: var(--border);
+  }
+
+  .card {
+    background: var(--bg);
+    padding: 1.75rem 1.5rem;
+    cursor: pointer;
+    transition: background 0.12s;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    min-height: 200px;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .card:hover { background: var(--bg2); }
+
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--text);
+  }
+
+  .card-desc {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.55;
+    font-weight: 300;
+    flex-grow: 1;
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.25rem;
+  }
+
+  .card-tag {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+  }
+
+  .badge {
+    font-size: 10px;
+    padding: 3px 9px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  .badge-ready { background: #EAF3DE; color: #27500A; }
+  .badge-soon { background: #FAEEDA; color: #633806; }
+
+  @media (prefers-color-scheme: dark) {
+    .badge-ready { background: #173404; color: #C0DD97; }
+    .badge-soon { background: #412402; color: #FAC775; }
+  }
+
+  footer {
+    padding: 1.75rem 2.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .footer-text { font-size: 12px; color: var(--text3); }
+
+  .empty {
+    grid-column: 1/-1;
+    padding: 4rem 2rem;
+    text-align: center;
+    color: var(--text3);
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="site-label">Modellini interattivi</div>
+    <h1>Laboratorio<br><em>Didattico</em></h1>
+    <p class="hero-sub">Esplora concetti complessi attraverso simulazioni interattive. Ogni modulo è un esperimento da toccare con mano.</p>
+  </div>
+  <div class="header-count" id="count">7 moduli</div>
+</header>
+
+<div class="filter-bar" id="filterBar">
+  <button class="filter-btn active" onclick="filter('tutti',this)">Tutti</button>
+  <button class="filter-btn" onclick="filter('logica',this)">Logica</button>
+  <button class="filter-btn" onclick="filter('probabilità',this)">Probabilità</button>
+  <button class="filter-btn" onclick="filter('fisica',this)">Fisica</button>
+  <button class="filter-btn" onclick="filter('informatica',this)">Informatica</button>
+  <button class="filter-btn" onclick="filter('matematica',this)">Matematica</button>
+</div>
+
+<main class="grid" id="grid"></main>
+
+<footer>
+  <span class="footer-text">Imparo · aggiornato 2026</span>
+  <span class="footer-text">Creato con Claude</span>
+</footer>
+
+<script>
+const moduli = [
+  {
+    titolo: "Subjective Logic",
+    desc: "Opinioni, incertezza e ragionamento bayesiano con operatori visivi interattivi.",
+    tag: "logica",
+    icona: "◈",
+    iconaBg: "#EEEDFE",
+    iconaColor: "#534AB7",
+    status: "ready",
+    file: "subjective-logic.html"
+  },
+  {
+    titolo: "Teorema di Bayes",
+    desc: "Aggiornamento delle credenze con evidenza: visualizza prior, likelihood e posterior.",
+    tag: "probabilità",
+    icona: "∫",
+    iconaBg: "#E1F5EE",
+    iconaColor: "#0F6E56",
+    status: "soon",
+    file: "bayes.html"
+  },
+  {
+    titolo: "Reti neurali",
+    desc: "Percettrone e backpropagation passo per passo, layer per layer.",
+    tag: "informatica",
+    icona: "⬡",
+    iconaBg: "#FAECE7",
+    iconaColor: "#993C1D",
+    status: "soon",
+    file: "reti-neurali.html"
+  },
+  {
+    titolo: "Entropia di Shannon",
+    desc: "Quantità di informazione e sorpresa: da bit a messaggi e compressione.",
+    tag: "informatica",
+    icona: "≈",
+    iconaBg: "#FAEEDA",
+    iconaColor: "#854F0B",
+    status: "soon",
+    file: "entropia.html"
+  },
+  {
+    titolo: "Moto pendolare",
+    desc: "Pendolo semplice e doppio: energia, periodo, e il caos deterministico.",
+    tag: "fisica",
+    icona: "○",
+    iconaBg: "#FBEAF0",
+    iconaColor: "#993556",
+    status: "soon",
+    file: "pendolo.html"
+  },
+  {
+    titolo: "Numeri primi",
+    desc: "Crivello di Eratostene, distribuzione e congettura di Goldbach visualizzata.",
+    tag: "matematica",
+    icona: "π",
+    iconaBg: "#E6F1FB",
+    iconaColor: "#185FA5",
+    status: "soon",
+    file: "numeri-primi.html"
+  },
+  {
+    titolo: "Automi cellulari",
+    desc: "Il Gioco della Vita di Conway: strutture emergenti da regole elementari.",
+    tag: "informatica",
+    icona: "▦",
+    iconaBg: "#EAF3DE",
+    iconaColor: "#3B6D11",
+    status: "soon",
+    file: "automi.html"
+  }
+];
+
+let filtroAttivo = 'tutti';
+
+function render(filtro) {
+  const grid = document.getElementById('grid');
+  const lista = moduli.filter(m => filtro === 'tutti' || m.tag === filtro);
+  document.getElementById('count').textContent = lista.length + ' moduli';
+
+  if (lista.length === 0) {
+    grid.innerHTML = '<div class="empty">Nessun modulo in questa categoria ancora.</div>';
+    return;
+  }
+
+  grid.innerHTML = lista.map(m => `
+    <a class="card" href="${m.status === 'ready' ? m.file : '#'}" ${m.status !== 'ready' ? 'onclick="return false"' : ''}>
+      <div class="card-icon" style="background:${m.iconaBg};color:${m.iconaColor}">${m.icona}</div>
+      <div class="card-title">${m.titolo}</div>
+      <div class="card-desc">${m.desc}</div>
+      <div class="card-footer">
+        <span class="card-tag">${m.tag}</span>
+        <span class="badge ${m.status === 'ready' ? 'badge-ready' : 'badge-soon'}">${m.status === 'ready' ? 'Disponibile' : 'Prossimamente'}</span>
+      </div>
+    </a>
+  `).join('');
+}
+
+function filter(tag, btn) {
+  filtroAttivo = tag;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render(tag);
+}
+
+render('tutti');
+</script>
+</body>
+</html>
