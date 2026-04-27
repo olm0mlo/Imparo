@@ -1,0 +1,321 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+  .site-root {
+    font-family: 'DM Sans', sans-serif;
+    color: var(--color-text-primary);
+    padding: 0;
+    margin: 0;
+  }
+
+  .hero {
+    padding: 3rem 2rem 2rem;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .hero-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.6rem;
+    font-weight: 700;
+    line-height: 1.15;
+    margin: 0;
+    color: var(--color-text-primary);
+  }
+
+  .hero-title span {
+    font-style: italic;
+  }
+
+  .hero-sub {
+    font-size: 15px;
+    color: var(--color-text-secondary);
+    font-weight: 300;
+    margin-top: 0.25rem;
+    max-width: 520px;
+  }
+
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    padding: 1.25rem 2rem;
+    flex-wrap: wrap;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+  }
+
+  .filter-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 0.5px solid var(--color-border-secondary);
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--color-text-primary);
+    color: var(--color-background-primary);
+    border-color: var(--color-text-primary);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 1px;
+    background: var(--color-border-tertiary);
+    border-top: none;
+  }
+
+  .card {
+    background: var(--color-background-primary);
+    padding: 1.5rem 1.25rem;
+    cursor: pointer;
+    transition: background 0.12s;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    min-height: 170px;
+  }
+
+  .card:hover {
+    background: var(--color-background-secondary);
+  }
+
+  .card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .card-tag {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+    margin-top: auto;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0;
+    color: var(--color-text-primary);
+  }
+
+  .card-desc {
+    font-size: 12.5px;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+    font-weight: 300;
+    margin: 0;
+  }
+
+  .card-status {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    display: inline-block;
+    width: fit-content;
+    margin-top: auto;
+  }
+
+  .status-ready {
+    background: #EAF3DE;
+    color: #3B6D11;
+  }
+
+  .status-soon {
+    background: #FAEEDA;
+    color: #854F0B;
+  }
+
+  .footer {
+    padding: 1.5rem 2rem;
+    border-top: 0.5px solid var(--color-border-tertiary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .footer-text {
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+  }
+
+  .new-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 16px;
+    border-radius: var(--border-radius-md);
+    border: 0.5px solid var(--color-border-secondary);
+    background: transparent;
+    color: var(--color-text-primary);
+    cursor: pointer;
+  }
+
+  .new-btn:hover { background: var(--color-background-secondary); }
+</style>
+
+<div class="site-root">
+  <h2 class="sr-only" style="position:absolute;left:-9999px">Homepage del sito didattico interattivo con modellini HTML per vari argomenti</h2>
+
+  <div class="hero">
+    <div class="hero-label">Modellini interattivi</div>
+    <h1 class="hero-title">Laboratorio<br><span>Didattico</span></h1>
+    <p class="hero-sub">Esplora concetti complessi attraverso simulazioni interattive. Ogni modulo è un esperimento da toccare con mano.</p>
+  </div>
+
+  <div class="filter-bar" id="filterBar">
+    <button class="filter-btn active" onclick="filterCards('tutti', this)">Tutti</button>
+    <button class="filter-btn" onclick="filterCards('logica', this)">Logica</button>
+    <button class="filter-btn" onclick="filterCards('probabilità', this)">Probabilità</button>
+    <button class="filter-btn" onclick="filterCards('fisica', this)">Fisica</button>
+    <button class="filter-btn" onclick="filterCards('informatica', this)">Informatica</button>
+    <button class="filter-btn" onclick="filterCards('matematica', this)">Matematica</button>
+  </div>
+
+  <div class="grid" id="cardGrid"></div>
+
+  <div class="footer">
+    <span class="footer-text">7 moduli · aggiornato aprile 2026</span>
+    <button class="new-btn" onclick="sendPrompt('Crea un nuovo modellino HTML didattico interattivo. Suggeriscimi argomenti interessanti.')">+ Richiedi nuovo modulo ↗</button>
+  </div>
+</div>
+
+<script>
+const moduli = [
+  {
+    titolo: "Subjective Logic",
+    desc: "Opinioni, incertezza e ragionamento bayesiano con operatori visivi.",
+    tag: "logica",
+    icona: "◈",
+    iconaBg: "#EEEDFE",
+    iconaColor: "#534AB7",
+    status: "ready",
+    file: "subjective-logic.html"
+  },
+  {
+    titolo: "Teorema di Bayes",
+    desc: "Aggiornamento delle credenze con evidenza: visualizza prior e posterior.",
+    tag: "probabilità",
+    icona: "∫",
+    iconaBg: "#E1F5EE",
+    iconaColor: "#0F6E56",
+    status: "soon",
+    file: ""
+  },
+  {
+    titolo: "Reti neurali",
+    desc: "Percettrone e backpropagation passo per passo, layer per layer.",
+    tag: "informatica",
+    icona: "⬡",
+    iconaBg: "#FAECE7",
+    iconaColor: "#993C1D",
+    status: "soon",
+    file: ""
+  },
+  {
+    titolo: "Entropia di Shannon",
+    desc: "Quantità di informazione e sorpresa: da bit a messaggi.",
+    tag: "informatica",
+    icona: "≈",
+    iconaBg: "#FAEEDA",
+    iconaColor: "#854F0B",
+    status: "soon",
+    file: ""
+  },
+  {
+    titolo: "Moto pendolare",
+    desc: "Pendolo semplice e doppio: energia, periodo, chaos.",
+    tag: "fisica",
+    icona: "○",
+    iconaBg: "#FBEAF0",
+    iconaColor: "#993556",
+    status: "soon",
+    file: ""
+  },
+  {
+    titolo: "Numeri primi",
+    desc: "Crivello di Eratostene, distribuzione e congettura di Goldbach.",
+    tag: "matematica",
+    icona: "π",
+    iconaBg: "#E6F1FB",
+    iconaColor: "#185FA5",
+    status: "soon",
+    file: ""
+  },
+  {
+    titolo: "Automi cellulari",
+    desc: "Il Gioco della Vita di Conway: strutture emergenti da regole semplici.",
+    tag: "informatica",
+    icona: "▦",
+    iconaBg: "#EAF3DE",
+    iconaColor: "#3B6D11",
+    status: "soon",
+    file: ""
+  }
+];
+
+let filtroAttivo = 'tutti';
+
+function renderCards(filtro) {
+  const grid = document.getElementById('cardGrid');
+  grid.innerHTML = '';
+  moduli
+    .filter(m => filtro === 'tutti' || m.tag === filtro)
+    .forEach(m => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-icon" style="background:${m.iconaBg};color:${m.iconaColor};font-size:18px">${m.icona}</div>
+        <p class="card-title">${m.titolo}</p>
+        <p class="card-desc">${m.desc}</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto">
+          <span class="card-tag">${m.tag}</span>
+          <span class="card-status ${m.status === 'ready' ? 'status-ready' : 'status-soon'}">${m.status === 'ready' ? 'Disponibile' : 'Prossimamente'}</span>
+        </div>
+      `;
+      if (m.status === 'ready') {
+        card.onclick = () => sendPrompt(`Mostrami il modellino interattivo su "${m.titolo}"`);
+      } else {
+        card.onclick = () => sendPrompt(`Crea il modellino HTML didattico interattivo su "${m.titolo}"`);
+      }
+      grid.appendChild(card);
+    });
+}
+
+function filterCards(filtro, btn) {
+  filtroAttivo = filtro;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCards(filtro);
+}
+
+renderCards('tutti');
+</script>

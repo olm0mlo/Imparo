@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subjective Logic — Triangolo + Distribuzione Beta</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #f7f6f3;
+    color: #1a1a18;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  .card {
+    background: #fff;
+    border: 1px solid #e2e0d8;
+    border-radius: 16px;
+    padding: 36px 40px 32px;
+    width: 100%;
+    max-width: 760px;
+  }
+
+  h1 { font-size: 18px; font-weight: 500; color: #1a1a18; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #888780; margin-bottom: 28px; }
+
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px 28px;
+    margin-bottom: 24px;
+  }
+  .ctrl-row { display: flex; flex-direction: column; gap: 6px; }
+  .ctrl-label { font-size: 12px; color: #5f5e5a; display: flex; justify-content: space-between; align-items: center; }
+  .ctrl-val { font-size: 14px; font-weight: 500; min-width: 38px; text-align: right; }
+
+  input[type=range] {
+    -webkit-appearance: none; width: 100%; height: 4px;
+    border-radius: 2px; background: #e2e0d8; outline: none; cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 16px; height: 16px;
+    border-radius: 50%; border: 2px solid #fff; cursor: pointer;
+  }
+  #bs::-webkit-slider-thumb { background:#534AB7; box-shadow:0 0 0 1.5px #534AB7; }
+  #ds::-webkit-slider-thumb { background:#D85A30; box-shadow:0 0 0 1.5px #D85A30; }
+  #us::-webkit-slider-thumb { background:#1D9E75; box-shadow:0 0 0 1.5px #1D9E75; }
+
+  .panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+
+  .panel-title {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
+    text-transform: uppercase; color: #888780; margin-bottom: 8px;
+  }
+
+  svg { display: block; width: 100%; height: auto; }
+
+  .beta-params {
+    font-size: 12px; color: #5f5e5a;
+    margin-top: 10px; text-align: center; line-height: 1.9;
+  }
+  .beta-params strong { color: #1a1a18; font-weight: 500; }
+
+  hr { border: none; border-top: 1px solid #e2e0d8; margin: 20px 0; }
+
+  .info-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 4px; }
+  .info-card { background:#f7f6f3; border-radius:10px; padding:10px 14px; text-align:center; }
+  .info-card .val { font-size:20px; font-weight:500; }
+  .info-card .lbl { font-size:11px; color:#888780; margin-top:2px; }
+  .note { font-size:11px; color:#b4b2a9; text-align:center; margin-top:10px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Subjective Logic — triangolo &amp; distribuzione Beta</h1>
+  <p class="subtitle">Muovi i cursori: i valori vengono normalizzati automaticamente (b + d + u = 1)</p>
+
+  <div class="controls">
+    <div class="ctrl-row">
+      <div class="ctrl-label">
+        <span>Belief <em>(b)</em></span>
+        <span class="ctrl-val" id="bv" style="color:#534AB7">0.50</span>
+      </div>
+      <input type="range" id="bs" min="0" max="100" value="50" step="1">
+    </div>
+    <div class="ctrl-row">
+      <div class="ctrl-label">
+        <span>Disbelief <em>(d)</em></span>
+        <span class="ctrl-val" id="dv" style="color:#D85A30">0.20</span>
+      </div>
+      <input type="range" id="ds" min="0" max="100" value="20" step="1">
+    </div>
+    <div class="ctrl-row">
+      <div class="ctrl-label">
+        <span>Uncertainty <em>(u)</em></span>
+        <span class="ctrl-val" id="uv" style="color:#1D9E75">0.30</span>
+      </div>
+      <input type="range" id="us" min="0" max="100" value="30" step="1">
+    </div>
+  </div>
+
+  <div class="panels">
+    <!-- Triangolo -->
+    <div>
+      <div class="panel-title">Spazio delle opinioni</div>
+      <svg id="trisvg" viewBox="0 0 300 310" xmlns="http://www.w3.org/2000/svg">
+        <g id="grid" stroke="#d3d1c7" stroke-width="0.6" fill="none" opacity="0.7"></g>
+        <polygon id="trimain" fill="none" stroke="#b4b2a9" stroke-width="1.5"/>
+        <circle id="vU" r="4" fill="#1D9E75"/>
+        <circle id="vB" r="4" fill="#534AB7"/>
+        <circle id="vD" r="4" fill="#D85A30"/>
+        <text id="lU1" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="11" font-weight="500" fill="#085041"></text>
+        <text id="lU2" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" fill="#1D9E75"></text>
+        <text id="lB1" text-anchor="end"    font-family="-apple-system,sans-serif" font-size="11" font-weight="500" fill="#3C3489"></text>
+        <text id="lB2" text-anchor="end"    font-family="-apple-system,sans-serif" font-size="10" fill="#534AB7"></text>
+        <text id="lD1" text-anchor="start"  font-family="-apple-system,sans-serif" font-size="11" font-weight="500" fill="#712B13"></text>
+        <text id="lD2" text-anchor="start"  font-family="-apple-system,sans-serif" font-size="10" fill="#D85A30"></text>
+        <line id="linB" stroke="#534AB7" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+        <line id="linD" stroke="#D85A30" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+        <line id="linU" stroke="#1D9E75" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+        <circle id="ptRing" r="12" fill="none" stroke="#534AB7" stroke-width="1.5" opacity="0.2"/>
+        <circle id="pt"     r="7"  fill="#534AB7" opacity="0.9"/>
+      </svg>
+    </div>
+
+    <!-- Beta -->
+    <div>
+      <div class="panel-title">Distribuzione Beta corrispondente</div>
+      <svg id="betasvg" viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg">
+        <!-- axes -->
+        <line x1="42" y1="12" x2="42" y2="188" stroke="#b4b2a9" stroke-width="1"/>
+        <line x1="42" y1="188" x2="288" y2="188" stroke="#b4b2a9" stroke-width="1"/>
+        <!-- x ticks + labels -->
+        <g font-family="-apple-system,sans-serif" font-size="9.5" fill="#888780" text-anchor="middle">
+          <line x1="42"  y1="188" x2="42"  y2="194" stroke="#b4b2a9" stroke-width="1"/>
+          <text x="42"  y="205">0</text>
+          <line x1="103" y1="188" x2="103" y2="194" stroke="#b4b2a9" stroke-width="1"/>
+          <text x="103" y="205">0.25</text>
+          <line x1="165" y1="188" x2="165" y2="194" stroke="#b4b2a9" stroke-width="1"/>
+          <text x="165" y="205">0.5</text>
+          <line x1="226" y1="188" x2="226" y2="194" stroke="#b4b2a9" stroke-width="1"/>
+          <text x="226" y="205">0.75</text>
+          <line x1="288" y1="188" x2="288" y2="194" stroke="#b4b2a9" stroke-width="1"/>
+          <text x="288" y="205">1</text>
+        </g>
+        <!-- y axis label -->
+        <text font-family="-apple-system,sans-serif" font-size="9.5" fill="#888780"
+              x="10" y="100" text-anchor="middle"
+              transform="rotate(-90,10,100)">densità</text>
+        <!-- chart area -->
+        <path id="betaFill"  fill="#534AB7" opacity="0.12"/>
+        <path id="betaCurve" fill="none" stroke="#534AB7" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- mean vertical line -->
+        <line id="meanLine" stroke="#534AB7" stroke-width="1.2"
+              stroke-dasharray="4 3" opacity="0.65"/>
+        <text id="meanLabel" font-family="-apple-system,sans-serif"
+              font-size="9.5" fill="#534AB7" text-anchor="middle"></text>
+        <!-- degenerate notice -->
+        <text id="degenMsg" font-family="-apple-system,sans-serif"
+              font-size="11.5" fill="#888780" x="165" y="110"
+              text-anchor="middle" opacity="0"></text>
+      </svg>
+      <div class="beta-params">
+        α = <strong id="alphaVal">—</strong> &nbsp;·&nbsp; β = <strong id="betaVal">—</strong><br>
+        media = <strong id="meanVal">—</strong> &nbsp;·&nbsp; varianza = <strong id="varVal">—</strong>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="info-cards">
+    <div class="info-card"><div class="val" id="cb" style="color:#534AB7">0.50</div><div class="lbl">Belief (b)</div></div>
+    <div class="info-card"><div class="val" id="cd" style="color:#D85A30">0.20</div><div class="lbl">Disbelief (d)</div></div>
+    <div class="info-card"><div class="val" id="cu" style="color:#1D9E75">0.30</div><div class="lbl">Uncertainty (u)</div></div>
+  </div>
+  <p class="note">α = (b/u)·W + 1 &nbsp;·&nbsp; β = (d/u)·W + 1 &nbsp; con W = 2 (prior di Laplace, Jøsang 2016)</p>
+</div>
+
+<script>
+/* ── Triangle ──────────────────────────────────────────── */
+const SIDE = 210, TH = SIDE * Math.sqrt(3) / 2;
+const CX = 150, AY = 62, BY2 = AY + TH;
+const vU = {x:CX, y:AY}, vB = {x:CX-SIDE/2, y:BY2}, vD = {x:CX+SIDE/2, y:BY2};
+
+function lerp(A,B,t){ return {x:A.x+t*(B.x-A.x), y:A.y+t*(B.y-A.y)}; }
+function bary(b,d,u){ return {x:b*vB.x+d*vD.x+u*vU.x, y:b*vB.y+d*vD.y+u*vU.y}; }
+function foot(P,A,B){
+  const abx=B.x-A.x, aby=B.y-A.y;
+  const t=Math.max(0,Math.min(1,((P.x-A.x)*abx+(P.y-A.y)*aby)/(abx*abx+aby*aby)));
+  return {x:A.x+t*abx, y:A.y+t*aby};
+}
+
+function sa(id,attrs){
+  const el=document.getElementById(id);
+  for(const [k,v] of Object.entries(attrs)) el.setAttribute(k,v);
+}
+
+function setupTriangle(){
+  sa('trimain',{points:`${vU.x},${vU.y} ${vB.x},${vB.y} ${vD.x},${vD.y}`});
+  sa('vU',{cx:vU.x,cy:vU.y}); sa('vB',{cx:vB.x,cy:vB.y}); sa('vD',{cx:vD.x,cy:vD.y});
+  const P=13;
+  sa('lU1',{x:vU.x,y:vU.y-P-12}); document.getElementById('lU1').textContent='u = 1';
+  sa('lU2',{x:vU.x,y:vU.y-P-1});  document.getElementById('lU2').textContent='Uncertainty';
+  sa('lB1',{x:vB.x-P,y:vB.y+3});  document.getElementById('lB1').textContent='b = 1';
+  sa('lB2',{x:vB.x-P,y:vB.y+15}); document.getElementById('lB2').textContent='Belief';
+  sa('lD1',{x:vD.x+P,y:vD.y+3});  document.getElementById('lD1').textContent='d = 1';
+  sa('lD2',{x:vD.x+P,y:vD.y+15}); document.getElementById('lD2').textContent='Disbelief';
+  const grid=document.getElementById('grid');
+  grid.innerHTML='';
+  [[vU,vB,vD],[vB,vU,vD],[vD,vU,vB]].forEach(([apex,v1,v2])=>{
+    [0.25,0.5,0.75].forEach(t=>{
+      const p1=lerp(apex,v1,t), p2=lerp(apex,v2,t);
+      const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+      Object.entries({x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y}).forEach(([k,v])=>ln.setAttribute(k,v));
+      grid.appendChild(ln);
+    });
+  });
+}
+
+/* ── Beta distribution ─────────────────────────────────── */
+function logGamma(z){
+  if(z<0.5) return Math.log(Math.PI/Math.sin(Math.PI*z))-logGamma(1-z);
+  z-=1;
+  const c=[0.99999999999980993,676.5203681218851,-1259.1392167224028,
+    771.32342877765313,-176.61502916214059,12.507343278686905,
+    -0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];
+  let x=c[0]; for(let i=1;i<9;i++) x+=c[i]/(z+i);
+  const t=z+7.5;
+  return 0.5*Math.log(2*Math.PI)+(z+0.5)*Math.log(t)-t+Math.log(x);
+}
+
+function betaPDF(x,a,b){
+  if(x<=0||x>=1) return 0;
+  return Math.exp((a-1)*Math.log(x)+(b-1)*Math.log(1-x)-logGamma(a)-logGamma(b)+logGamma(a+b));
+}
+
+/* chart coordinate system */
+const BX0=42, BX1=288, BY0=12, BY1=188;
+const BW=BX1-BX0, BH=BY1-BY0;
+const xSvg=x=>BX0+x*BW;
+const ySvg=(y,mx)=>BY1-(y/mx)*BH*0.90;
+
+function drawBeta(alpha, beta){
+  const degen=document.getElementById('degenMsg');
+  if(!isFinite(alpha)||!isFinite(beta)||alpha>800||beta>800){
+    sa('betaCurve',{d:''}); sa('betaFill',{d:''});
+    sa('meanLine',{x1:0,y1:0,x2:0,y2:0});
+    document.getElementById('meanLabel').textContent='';
+    degen.setAttribute('opacity','1');
+    degen.textContent='u → 0 : distribuzione degenere';
+    document.getElementById('alphaVal').textContent='∞';
+    document.getElementById('betaVal').textContent='∞';
+    document.getElementById('meanVal').textContent='—';
+    document.getElementById('varVal').textContent='—';
+    return;
+  }
+  degen.setAttribute('opacity','0');
+
+  const N=260;
+  const xs=[], ys=[];
+  for(let i=0;i<=N;i++){
+    const x=0.001+i/N*0.998;
+    xs.push(x); ys.push(betaPDF(x,alpha,beta));
+  }
+  const maxY=Math.max(...ys, 0.01);
+
+  let curve='M'+xSvg(xs[0])+','+ySvg(ys[0],maxY);
+  for(let i=1;i<=N;i++) curve+=' L'+xSvg(xs[i])+','+ySvg(ys[i],maxY);
+  const fill='M'+xSvg(xs[0])+','+BY1+' '+curve.slice(1)+' L'+xSvg(xs[N])+','+BY1+' Z';
+
+  sa('betaCurve',{d:curve});
+  sa('betaFill',{d:fill});
+
+  const mean=alpha/(alpha+beta);
+  const mx=xSvg(mean);
+  sa('meanLine',{x1:mx,y1:BY0,x2:mx,y2:BY1});
+  const ml=document.getElementById('meanLabel');
+  ml.setAttribute('x',mx); ml.setAttribute('y',BY0+10);
+  ml.textContent='μ='+(mean).toFixed(2);
+
+  const vari=alpha*beta/((alpha+beta)**2*(alpha+beta+1));
+  document.getElementById('alphaVal').textContent=alpha.toFixed(2);
+  document.getElementById('betaVal').textContent=beta.toFixed(2);
+  document.getElementById('meanVal').textContent=mean.toFixed(3);
+  document.getElementById('varVal').textContent=vari.toFixed(4);
+}
+
+/* ── Update ────────────────────────────────────────────── */
+function render(b, d, u){
+  document.getElementById('bv').textContent=b.toFixed(2);
+  document.getElementById('dv').textContent=d.toFixed(2);
+  document.getElementById('uv').textContent=u.toFixed(2);
+  document.getElementById('cb').textContent=b.toFixed(2);
+  document.getElementById('cd').textContent=d.toFixed(2);
+  document.getElementById('cu').textContent=u.toFixed(2);
+
+  const pt=bary(b,d,u);
+  sa('pt',{cx:pt.x,cy:pt.y}); sa('ptRing',{cx:pt.x,cy:pt.y});
+  const setL=(id,p1,p2)=>sa(id,{x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y});
+  setL('linB',pt,foot(pt,vU,vB));
+  setL('linD',pt,foot(pt,vU,vD));
+  setL('linU',pt,foot(pt,vB,vD));
+
+  const W=2;
+  const alpha=u>1e-6 ? (b/u)*W+1 : Infinity;
+  const betaP=u>1e-6 ? (d/u)*W+1 : Infinity;
+  drawBeta(alpha,betaP);
+}
+
+/* Slider raw values live in [0,100]. We keep a canonical (b,d,u) in [0,1]. */
+let state = { b:0.50, d:0.20, u:0.30 };
+
+function sliderVal(id){ return +document.getElementById(id).value; }
+function setSlider(id, v){ document.getElementById(id).value = Math.round(v*100); }
+
+function onBD(changed){
+  /* u stays fixed; the other two of {b,d} absorb the change */
+  const u = state.u;
+  const avail = 1 - u;          /* budget for b+d */
+  let bRaw = sliderVal('bs');
+  let dRaw = sliderVal('ds');
+  const bdSum = bRaw + dRaw || 1;
+  let b = (bRaw / bdSum) * avail;
+  let d = (dRaw / bdSum) * avail;
+  /* clamp */
+  b = Math.max(0, Math.min(avail, b));
+  d = Math.max(0, Math.min(avail - b, d));
+  state = { b, d, u };
+  /* sync sliders to reflect clamping */
+  setSlider('bs', b);
+  setSlider('ds', d);
+  render(b, d, u);
+}
+
+function onU(){
+  /* Keep Beta mean mu = (b*W+u)/((b+d)*W+2u) constant while u changes.
+     Solve for new b,d given uNew and same mu:
+       b = (mu*(A*W + 2*uNew) - uNew) / W    where A = 1 - uNew
+       d = A - b                                                        */
+  const W = 2;
+  const uNew = sliderVal('us') / 100;
+  const uOld = state.u;
+  let mu;
+  if (uOld < 1e-9) {
+    const bdOld = state.b + state.d;
+    mu = bdOld > 1e-9 ? state.b / bdOld : 0.5;
+  } else {
+    const aOld = (state.b / uOld) * W + 1;
+    const bOld = (state.d / uOld) * W + 1;
+    mu = aOld / (aOld + bOld);
+  }
+  const A = 1 - uNew;
+  let b = (mu * (A * W + 2 * uNew) - uNew) / W;
+  let d = A - b;
+  b = Math.max(0, Math.min(A, b));
+  d = Math.max(0, Math.min(A - b, d));
+  state = { b, d, u: uNew };
+  setSlider('bs', b);
+  setSlider('ds', d);
+  render(b, d, uNew);
+}
+
+setupTriangle();
+render(state.b, state.d, state.u);
+setSlider('bs', state.b);
+setSlider('ds', state.d);
+setSlider('us', state.u);
+document.getElementById('bs').addEventListener('input', ()=>onBD('b'));
+document.getElementById('ds').addEventListener('input', ()=>onBD('d'));
+document.getElementById('us').addEventListener('input', onU);
+</script>
+</body>
+</html>
